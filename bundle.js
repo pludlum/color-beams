@@ -74,18 +74,16 @@ var _game = __webpack_require__(1);
 
 var _game2 = _interopRequireDefault(_game);
 
+var _screen = __webpack_require__(2);
+
+var _screen2 = _interopRequireDefault(_screen);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import Screen from "./screen";
-
-
 document.addEventListener("DOMContentLoaded", function () {
-
-  var options = {
-    mousePos: [0, 0],
-    pathHistory: []
+  var settings = {
+    sound: false
   };
-
   // Find game canvas and associated context
   var canvasEl = document.getElementById("game-canvas");
   var ctx = canvasEl.getContext("2d");
@@ -96,22 +94,18 @@ document.addEventListener("DOMContentLoaded", function () {
   canvasEl.width = WIDTH;
   canvasEl.height = HEIGHT;
 
-  // Find and store the mouse position in options
-  var setMousePosition = function setMousePosition(e) {
-    options.mousePos = [e.clientX, e.clientY];
-    options.pathHistory.push([e.clientX, e.clientY]);
-    if (options.pathHistory.length > 31) {
-      options.pathHistory.shift();
-    }
+  var startGame = function startGame(e) {
+    e.preventDefault();
+    var game = new _game2.default(canvasEl, ctx);
+    var gameScreen = new _screen2.default(canvasEl, ctx, game);
+    gameScreen.start();
+    startButton.className += " hidden";
+    title.className += " hidden";
   };
-  canvasEl.addEventListener("mousemove", setMousePosition, false);
 
-  var game = new _game2.default(canvasEl, ctx, options);
-  // const gameScreen = new Screen(canvasEl, ctx, game, options);
-
-  var draw = setInterval(function (e) {
-    game.drawAll(canvasEl, ctx, options);
-  }, 10);
+  var startButton = document.getElementsByClassName("start-button")[0];
+  var title = document.getElementsByClassName("game-title")[0];
+  startButton.addEventListener('click', startGame);
 });
 
 /***/ }),
@@ -140,7 +134,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Game = function () {
-  function Game(canvas, ctx, options) {
+  function Game(canvas, ctx) {
     _classCallCheck(this, Game);
 
     this.ctx = ctx;
@@ -154,7 +148,10 @@ var Game = function () {
     this.timer = 0;
     this.score = 0;
 
+    this.over = false;
+
     this.colors = ['#bf4422', '#229dbf'];
+    this.lastBeam = 0;
   }
 
   _createClass(Game, [{
@@ -165,35 +162,38 @@ var Game = function () {
   }, {
     key: 'makeLeftVerticalBeam',
     value: function makeLeftVerticalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0.5 * (this.timer + 1), 0], 'height': this.canvas.height, 'width': 8, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0.5, 0], 'height': this.canvas.height, 'width': 8, "color": this.getRandomColor() }));
     }
   }, {
     key: 'makeRightVerticalBeam',
     value: function makeRightVerticalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [this.canvas.width + 10, 0], "vel": [-0.5 * (this.timer + 1), 0], 'height': this.canvas.height, 'width': 8, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [this.canvas.width + 10, 0], "vel": [-0.5, 0], 'height': this.canvas.height, 'width': 8, "color": this.getRandomColor() }));
     }
   }, {
     key: 'makeTopHorizontalBeam',
     value: function makeTopHorizontalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0, 0.5 * (this.timer + 1)], 'height': 8, 'width': this.canvas.width, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0, 0.5], 'height': 8, 'width': this.canvas.width, "color": this.getRandomColor() }));
     }
   }, {
     key: 'makeBottomHorizontalBeam',
     value: function makeBottomHorizontalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [0, this.canvas.height + 10], "vel": [0, -0.5 * (this.timer + 1)], 'height': 8, 'width': this.canvas.width, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [0, this.canvas.height + 10], "vel": [0, -0.5], 'height': 8, 'width': this.canvas.width, "color": this.getRandomColor() }));
     }
   }, {
     key: 'createBeams',
-    value: function createBeams() {
-      if (this.beams.length < Math.floor(1 + this.timer)) {
+    value: function createBeams(time) {
+      if (this.beams.length < 2 + this.score / 50) {
         var selection = Math.floor(Math.random() * 4) + 1;
         switch (selection) {
           case 1:
             this.makeLeftVerticalBeam();
+            break;
           case 2:
             this.makeRightVerticalBeam();
+            break;
           case 3:
             this.makeTopHorizontalBeam();
+            break;
           default:
             this.makeBottomHorizontalBeam();
         }
@@ -217,8 +217,20 @@ var Game = function () {
     key: 'enforceCollision',
     value: function enforceCollision(circle, beam, beamIdx) {
       if (circle.color === beam.color) {
-        this.beams.splice(beamIdx, 1);
+        beam.remove = true;
         this.score += 1;
+      } else {
+        this.over = true;
+      }
+    }
+  }, {
+    key: 'removeBeams',
+    value: function removeBeams() {
+      for (var i = 0; i < this.beams.length; i++) {
+        if (this.beams[i].remove) {
+          this.beams.splice(i, 1);
+          i -= 1;
+        }
       }
     }
   }, {
@@ -226,6 +238,7 @@ var Game = function () {
     value: function drawAll(canvasEl, ctx, options) {
       var _this = this;
 
+      this.removeBeams();
       this.timer += 0.001;
       this.createBeams();
 
@@ -250,7 +263,73 @@ var Game = function () {
 exports.default = Game;
 
 /***/ }),
-/* 2 */,
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Screen = function () {
+  function Screen(canvas, ctx, game, options) {
+    _classCallCheck(this, Screen);
+
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.game = game;
+
+    this.options = {
+      mousePos: [600, 400],
+      pathHistory: []
+    };
+
+    this.setMousePosition = this.setMousePosition.bind(this);
+  }
+
+  _createClass(Screen, [{
+    key: "setMousePosition",
+    value: function setMousePosition(e) {
+      this.options.mousePos = [e.clientX, e.clientY];
+      this.options.pathHistory.push([e.clientX, e.clientY]);
+      if (this.options.pathHistory.length > 31) {
+        this.options.pathHistory.shift();
+      }
+    }
+  }, {
+    key: "listenForMouse",
+    value: function listenForMouse() {
+      this.canvas.addEventListener("mousemove", this.setMousePosition, false);
+    }
+  }, {
+    key: "start",
+    value: function start() {
+      console.log(this.canvas);
+      this.listenForMouse();
+      requestAnimationFrame(this.animate.bind(this));
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      if (!this.game.over) {
+        this.game.drawAll(this.canvas, this.ctx, this.options);
+        requestAnimationFrame(this.animate.bind(this));
+      } else {}
+    }
+  }]);
+
+  return Screen;
+}();
+
+exports.default = Screen;
+
+/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -332,6 +411,7 @@ var Beam = function () {
     this.pos = options.pos;
     this.height = options.height;
     this.width = options.width;
+    this.remove = false;
   }
 
   _createClass(Beam, [{
