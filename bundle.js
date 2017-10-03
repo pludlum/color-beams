@@ -219,6 +219,8 @@ var Game = function () {
       if (circle.color === beam.color) {
         beam.remove = true;
         this.score += 1;
+        var currentScore = document.getElementsByClassName("score current")[0];
+        currentScore.innerHTML = 'Current Score: ' + this.score;
       } else {
         this.over = true;
       }
@@ -308,6 +310,24 @@ var Screen = function () {
       this.canvas.addEventListener("mousemove", this.setMousePosition, false);
     }
   }, {
+    key: "gameOver",
+    value: function gameOver() {
+      var startButton = document.getElementsByClassName("start-button hidden")[0];
+      startButton.className = "start-button";
+
+      var title = document.getElementsByClassName("game-title hidden")[0];
+      title.className = "game-title";
+
+      var currentScore = document.getElementsByClassName("score current")[0];
+      currentScore.innerHTML = "Current Score: 0";
+
+      var highScore = document.getElementsByClassName("score high")[0];
+      if (parseInt(highScore.id) < this.game.score) {
+        highScore.innerHTML = "High Score: " + this.game.score;
+        highScore.id = "" + this.game.score;
+      }
+    }
+  }, {
     key: "start",
     value: function start() {
       console.log(this.canvas);
@@ -320,7 +340,9 @@ var Screen = function () {
       if (!this.game.over) {
         this.game.drawAll(this.canvas, this.ctx, this.options);
         requestAnimationFrame(this.animate.bind(this));
-      } else {}
+      } else {
+        this.gameOver();
+      }
     }
   }]);
 
