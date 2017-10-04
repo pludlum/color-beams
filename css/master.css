@@ -1,13 +1,29 @@
 
 
 
+.menu-container {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  background:rgba(255,255,255, 0.3);
+  visibility: visible;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.menu-container.hidden {
+  visibility: hidden;
+}
+
 .game-title {
   font-family: sans-serif;
   text-align: center;
   font-size: 5vw;
-  position: absolute;
-  top: 4vw;
-  left: 33%;
+
+
   background-color: transparent;
   visibility: visible;
 }
@@ -19,9 +35,6 @@
 .start-button {
   font-family: sans-serif;
   font-size: 2vw;
-  position: absolute;
-  top: 30%;
-  left: 44%;
   background-color: transparent;
   visibility: visiblse;
 }
@@ -40,9 +53,8 @@
 }
 
 .score.high {
-
 }
 
 .score.current {
-  left: 8vw;
+  left: 10vw;
 }

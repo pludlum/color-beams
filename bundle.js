@@ -99,12 +99,16 @@ document.addEventListener("DOMContentLoaded", function () {
     var game = new _game2.default(canvasEl, ctx);
     var gameScreen = new _screen2.default(canvasEl, ctx, game);
     gameScreen.start();
-    startButton.className += " hidden";
     title.className += " hidden";
+    menu.className += " hidden";
+
+    var currentScore = document.getElementsByClassName("score current")[0];
+    currentScore.innerHTML = "Current Score: 0";
   };
 
   var startButton = document.getElementsByClassName("start-button")[0];
   var title = document.getElementsByClassName("game-title")[0];
+  var menu = document.getElementsByClassName("menu-container")[0];
   startButton.addEventListener('click', startGame);
 });
 
@@ -162,40 +166,66 @@ var Game = function () {
   }, {
     key: 'makeLeftVerticalBeam',
     value: function makeLeftVerticalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0.5, 0], 'height': this.canvas.height, 'width': 8, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [-10, 0],
+        "vel": [0.5 + this.score / 10, 0],
+        'height': this.canvas.height,
+        'width': 8,
+        "color": this.getRandomColor(),
+        "orientation": 'V' }));
     }
   }, {
     key: 'makeRightVerticalBeam',
     value: function makeRightVerticalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [this.canvas.width + 10, 0], "vel": [-0.5, 0], 'height': this.canvas.height, 'width': 8, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [this.canvas.width + 10, 0],
+        "vel": [-0.5 - this.score / 10, 0],
+        'height': this.canvas.height,
+        'width': 8,
+        "color": this.getRandomColor(),
+        "orientation": 'V' }));
     }
   }, {
     key: 'makeTopHorizontalBeam',
     value: function makeTopHorizontalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0, 0.5], 'height': 8, 'width': this.canvas.width, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0, 0.5 + this.score / 10],
+        'height': 8,
+        'width': this.canvas.width,
+        "color": this.getRandomColor(),
+        "orientation": 'H' }));
     }
   }, {
     key: 'makeBottomHorizontalBeam',
     value: function makeBottomHorizontalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [0, this.canvas.height + 10], "vel": [0, -0.5], 'height': 8, 'width': this.canvas.width, "color": this.getRandomColor() }));
+      this.beams.push(new _beams2.default({ "pos": [0, this.canvas.height + 10],
+        "vel": [0, -0.5 - this.score / 10],
+        'height': 8,
+        'width': this.canvas.width,
+        "color": this.getRandomColor(),
+        "orientation": 'H' }));
     }
   }, {
     key: 'createBeams',
     value: function createBeams(time) {
       if (this.beams.length < 2 + this.score / 50) {
         var selection = Math.floor(Math.random() * 4) + 1;
+        while (selection === this.lastBeam) {
+          selection = Math.floor(Math.random() * 4) + 1;
+        }
         switch (selection) {
           case 1:
             this.makeLeftVerticalBeam();
+            this.lastBeam = 1;
             break;
           case 2:
             this.makeRightVerticalBeam();
+            this.lastBeam = 2;
             break;
           case 3:
             this.makeTopHorizontalBeam();
+            this.lastBeam = 3;
             break;
           default:
             this.makeBottomHorizontalBeam();
+            this.lastBeam = 4;
         }
       }
     }
@@ -204,10 +234,12 @@ var Game = function () {
     value: function detectCollision() {
       for (var i = 0; i < this.beams.length; i++) {
         for (var j = 0; j < this.circles.length; j++) {
-          if (this.beams[i].pos[0] > this.circles[j].pos[0] - this.circles[j].radius && this.beams[i].pos[0] < this.circles[j].pos[0] + this.circles[j].radius) {
+
+          if (this.beams[i].orientation === 'V' && this.beams[i].pos[0] > this.circles[j].pos[0] - this.circles[j].radius && this.beams[i].pos[0] < this.circles[j].pos[0] + this.circles[j].radius) {
             this.enforceCollision(this.circles[j], this.beams[i], i);
           }
-          if (this.beams[i].pos[1] > this.circles[j].pos[1] - this.circles[j].radius && this.beams[i].pos[1] < this.circles[j].pos[1] + this.circles[j].radius) {
+
+          if (this.beams[i].orientation === 'H' && this.beams[i].pos[1] > this.circles[j].pos[1] - this.circles[j].radius && this.beams[i].pos[1] < this.circles[j].pos[1] + this.circles[j].radius) {
             this.enforceCollision(this.circles[j], this.beams[i], i);
           }
         }
@@ -312,14 +344,12 @@ var Screen = function () {
   }, {
     key: "gameOver",
     value: function gameOver() {
-      var startButton = document.getElementsByClassName("start-button hidden")[0];
-      startButton.className = "start-button";
+      var menu = document.getElementsByClassName("menu-container")[0];
+      menu.className = "menu-container";
 
       var title = document.getElementsByClassName("game-title hidden")[0];
       title.className = "game-title";
-
-      var currentScore = document.getElementsByClassName("score current")[0];
-      currentScore.innerHTML = "Current Score: 0";
+      title.innerHTML = "Game Over";
 
       var highScore = document.getElementsByClassName("score high")[0];
       if (parseInt(highScore.id) < this.game.score) {
@@ -330,7 +360,6 @@ var Screen = function () {
   }, {
     key: "start",
     value: function start() {
-      console.log(this.canvas);
       this.listenForMouse();
       requestAnimationFrame(this.animate.bind(this));
     }
@@ -373,6 +402,7 @@ var Circle = function () {
     this.radius = 30;
     this.pos = [600, 400];
     this.color = options.color;
+    this.vel = [0, 0];
   }
 
   _createClass(Circle, [{
@@ -392,6 +422,11 @@ var Circle = function () {
       if (pathHistory.length > 30) {
         this.pos = pathHistory[0];
       }
+    }
+  }, {
+    key: "gravitate",
+    value: function gravitate(pos) {
+      var norm = this.findDistance(this.pos, pos);
     }
   }, {
     key: "draw",
@@ -434,6 +469,7 @@ var Beam = function () {
     this.height = options.height;
     this.width = options.width;
     this.remove = false;
+    this.orientation = options.orientation;
   }
 
   _createClass(Beam, [{
