@@ -5,13 +5,14 @@
   height: 100%;
   width: 100%;
   position: absolute;
-  background:rgba(255,255,255, 0.3);
+  background:rgba(255,255,255, 0.5);
   visibility: visible;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
+  user-select: none;
 }
 
 .menu-container.hidden {
@@ -19,7 +20,7 @@
 }
 
 .game-title {
-  font-family: sans-serif;
+  font-family: 'Lobster', cursive;
   text-align: center;
   font-size: 5vw;
 
@@ -32,22 +33,49 @@
   visibility: hidden;
 }
 
-.start-button {
-  font-family: sans-serif;
+.game-text {
+  font-family: 'Bree Serif', serif;
   font-size: 2vw;
+  width: 50vw;
+  text-align: center;
+  padding: 6vw;
+}
+
+.start-button {
+  font-family: 'Bree Serif', serif;
+  font-size: 1.5vw;
   background-color: transparent;
   visibility: visiblse;
+
+  height: 80px;
+  width: 80px;
+
+  border-radius: 80px;
+
+  border: none;
+
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+
 }
+
+.start-button:focus {
+  outline: none;
+}
+.start-button:hover {
+
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, .8);
+}
+
 .start-button.hidden {
   visibility: hidden;
 }
 
 
 .score {
-  font-family: sans-serif;
+  font-family: 'Bree Serif', serif;
   font-size: 1vw;
   position: absolute;
-  top: 5px;
+  top: 25px;
   left: 20px;
   background-color: transparent
 }
@@ -57,4 +85,19 @@
 
 .score.current {
   left: 10vw;
+}
+
+
+.audio {
+  position: absolute;
+  top: 25px;
+  left: 90vw;
+  z-index: 999;
+}
+
+.music-icon {
+  position: absolute;
+  top: 25px;
+  left: 93vw;
+  z-index: 999;
 }

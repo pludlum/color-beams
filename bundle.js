@@ -82,7 +82,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 document.addEventListener("DOMContentLoaded", function () {
   var settings = {
-    sound: false
+    soundEffects: false,
+    Music: false
   };
   // Find game canvas and associated context
   var canvasEl = document.getElementById("game-canvas");
@@ -94,8 +95,48 @@ document.addEventListener("DOMContentLoaded", function () {
   canvasEl.width = WIDTH;
   canvasEl.height = HEIGHT;
 
+  // MUTE ON CLICK
+  var toggleMuteMusic = function toggleMuteMusic() {
+    if (settings.music === false) {
+      music.play();
+      settings.music = true;
+    } else {
+      music.pause();
+      settings.music = false;
+    }
+  };
+
+  var toggleMuteEffects = function toggleMuteEffects() {
+    if (settings.sound === false) {
+      soundButton.className = "audio fa fa-volume-up fa-2x";
+      document.getElementsByClassName("hit1")[0].volume = 1;
+      document.getElementsByClassName("hit2")[0].volume = 1;
+      document.getElementsByClassName("hit1")[0].play();
+      settings.sound = true;
+    } else {
+      soundButton.className = "audio fa fa-volume-off fa-2x";
+      document.getElementsByClassName("hit1")[0].volume = 0;
+      document.getElementsByClassName("hit2")[0].volume = 0;
+      settings.sound = false;
+    }
+  };
+
+  var music = document.getElementsByClassName("music")[0];
+  var soundButton = document.getElementById("audio");
+  var musicButton = document.getElementById("music-icon");
+  music.volume = 0.3;
+  soundButton.addEventListener("click", toggleMuteEffects);
+  musicButton.addEventListener("click", toggleMuteMusic);
+
+  // START GAME ON CLICK
   var startGame = function startGame(e) {
     e.preventDefault();
+
+    HEIGHT = window.innerHeight;
+    WIDTH = window.innerWidth;
+    canvasEl.width = WIDTH;
+    canvasEl.height = HEIGHT;
+
     var game = new _game2.default(canvasEl, ctx);
     var gameScreen = new _screen2.default(canvasEl, ctx, game);
     gameScreen.start();
@@ -253,6 +294,11 @@ var Game = function () {
         this.score += 1;
         var currentScore = document.getElementsByClassName("score current")[0];
         currentScore.innerHTML = 'Current Score: ' + this.score;
+        if (beam.color === "#bf4422") {
+          document.getElementsByClassName("hit1")[0].play();
+        } else {
+          document.getElementsByClassName("hit2")[0].play();
+        }
       } else {
         this.over = true;
       }

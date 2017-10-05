@@ -4,16 +4,29 @@
     <meta charset="utf-8">
     <title>ColorBeams</title>
     <link rel="stylesheet" type="text/css" href="./css/css_reset.css">
+    <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Lobster" rel="stylesheet">
+    <script src="https://use.fontawesome.com/4ec3eee556.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/master.css">
     <script type="application/javascript" src="./bundle.js"></script>
   </head>
   <body>
     <div class="game-container">
+      <audio class="music" src="./docs/Blue_Dot_Sessions_-_02_-_Partly_Sage.ogg" preload="auto" loop="true" >
+      </audio>
+      <audio class="hit1" src="./docs/hit1.ogg" preload="auto" >
+      </audio>
+      <audio class="hit2" src="./docs/hit2.ogg" preload="auto" >
+      </audio>
       <span id="0" class="score high">High Score: 0</span>
       <span class="score current">Current Score: 0</span>
+      <i id="audio" class="audio fa fa-volume-off fa-2x" aria-hidden="true"></i>
+      <i id="music-icon" class="music-icon fa fa-music fa-2x" aria-hidden="true"></i>
       <div class="menu-container">
         <h1 class="game-title">Color Beams</h1>
-        <button type="button" class="start-button">Start!</button>
+        <p class="game-text">Move the circles around with your mouse.
+          Collide circles with beams of the same color to cancel them
+          out, but don't let opposite colors collide!</p>
+        <button type="button" class="start-button">Start</button>
       </div>
       <canvas id="game-canvas"></canvas>
     </div>
