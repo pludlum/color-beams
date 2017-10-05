@@ -184,8 +184,8 @@ var Game = function () {
 
     this.ctx = ctx;
     this.canvas = canvas;
-    this.leadCircle = new _circles2.default({ "color": '#bf4422' });
-    this.followCircle = new _circles2.default({ "color": '#229dbf' });
+    this.leadCircle = new _circles2.default({ "color": '#bf4422', "position": [400, 600] });
+    this.followCircle = new _circles2.default({ "color": '#229dbf', "position": [400, 620] });
 
     this.beams = [];
     this.circles = [this.leadCircle, this.followCircle];
@@ -325,7 +325,9 @@ var Game = function () {
       this.ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
       this.leadCircle.updatePos(options.mousePos);
-      this.followCircle.followPos(options.pathHistory, options.mousePos);
+      // this.followCircle.followPos(options.pathHistory, options.mousePos);
+      this.followCircle.gravitate(options.mousePos);
+
       this.leadCircle.draw(ctx);
       this.followCircle.draw(ctx);
 
@@ -378,9 +380,7 @@ var Screen = function () {
     value: function setMousePosition(e) {
       this.options.mousePos = [e.clientX, e.clientY];
       this.options.pathHistory.push([e.clientX, e.clientY]);
-      if (this.options.pathHistory.length > 31) {
-        this.options.pathHistory.shift();
-      }
+      if (this.options.pathHistory.length > 31) this.options.pathHistory.shift();
     }
   }, {
     key: "listenForMouse",
@@ -412,12 +412,10 @@ var Screen = function () {
   }, {
     key: "animate",
     value: function animate() {
-      if (!this.game.over) {
-        this.game.drawAll(this.canvas, this.ctx, this.options);
-        requestAnimationFrame(this.animate.bind(this));
-      } else {
-        this.gameOver();
-      }
+      if (this.game.over) return this.gameOver();
+
+      this.game.drawAll(this.canvas, this.ctx, this.options);
+      requestAnimationFrame(this.animate.bind(this));
     }
   }]);
 
@@ -446,7 +444,7 @@ var Circle = function () {
     _classCallCheck(this, Circle);
 
     this.radius = 30;
-    this.pos = [600, 400];
+    this.pos = options.position;
     this.color = options.color;
     this.vel = [0, 0];
   }
@@ -456,12 +454,12 @@ var Circle = function () {
     value: function updatePos(pos) {
       this.pos = pos;
     }
-  }, {
-    key: "findDistance",
-    value: function findDistance(pos1, pos2) {
-      var dist = Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
-      return dist;
-    }
+
+    // findDistance(pos1, pos2) {
+    //    let dist =  Math.sqrt( Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2) );
+    //    return dist;
+    // }
+
   }, {
     key: "followPos",
     value: function followPos(pathHistory, currentPos) {
@@ -472,7 +470,19 @@ var Circle = function () {
   }, {
     key: "gravitate",
     value: function gravitate(pos) {
-      var norm = this.findDistance(this.pos, pos);
+
+      var m = 1000;
+      var k = 2;
+      var c = 20;
+
+      var xAccel = (k * (pos[0] - this.pos[0]) - c * this.vel[0]) / m;
+      var yAccel = (k * (pos[1] - this.pos[1]) - c * this.vel[1]) / m;
+
+      this.vel[0] += xAccel;
+      this.vel[1] += yAccel;
+
+      this.pos[0] += this.vel[0];
+      this.pos[1] += this.vel[1];
     }
   }, {
     key: "draw",
