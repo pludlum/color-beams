@@ -21,13 +21,13 @@ Early on in development, the blue circle simply followed the path the mouse took
 
 
 ![](./docs/follow.gif)
-(canvas is not being cleared here to better illustrate the paths taken by the circles.)
+canvas is not being cleared here to better illustrate the paths taken by the circles.
 
 
 Instead, I wanted to implement some basic, elastic physics to make it easy and intuitive to move that blue circle around.
 
 #### Damped Harmonic Oscillation
-A good description of harmonic oscillation can be found [here](), but the result is a spring-like effect. The farther away the blue circle is from the red, the greater the force acting on it.
+A good description of harmonic oscillation can be found [here](https://en.wikipedia.org/wiki/Harmonic_oscillator#Damped_harmonic_oscillator), but the result is a spring-like effect. The farther away the blue circle is from the red, the greater the force acting on it.
 
 ![](./docs/swing.gif)
 
