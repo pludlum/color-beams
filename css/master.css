@@ -77,7 +77,9 @@
   position: absolute;
   top: 25px;
   left: 20px;
-  background-color: transparent
+  background-color: transparent;
+
+  z-index: 999;
 }
 
 .score.high {
@@ -100,4 +102,8 @@
   top: 25px;
   left: 93vw;
   z-index: 999;
+}
+
+.grey {
+  color: grey;
 }

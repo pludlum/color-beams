@@ -82,7 +82,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 document.addEventListener("DOMContentLoaded", function () {
   var settings = {
-    soundEffects: false,
+    soundEffects: true,
     Music: false
   };
   // Find game canvas and associated context
@@ -100,8 +100,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (settings.music === false) {
       music.play();
       settings.music = true;
+      musicButton.className = "music-icon fa fa-music fa-2x";
     } else {
       music.pause();
+      musicButton.className += " grey";
       settings.music = false;
     }
   };
@@ -115,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
       settings.sound = true;
     } else {
       soundButton.className = "audio fa fa-volume-off fa-2x";
+      soundButton.className += " grey";
       document.getElementsByClassName("hit1")[0].volume = 0;
       document.getElementsByClassName("hit2")[0].volume = 0;
       settings.sound = false;
@@ -471,9 +474,12 @@ var Circle = function () {
     key: "gravitate",
     value: function gravitate(pos) {
 
-      var m = 1000;
-      var k = 2;
-      var c = 20;
+      var m = 500;
+      var k = 1;
+      var c = 10;
+
+      var radialOffsetX = 2 * this.radius;
+      var radialOffsetY = 2 * this.radius;
 
       var xAccel = (k * (pos[0] - this.pos[0]) - c * this.vel[0]) / m;
       var yAccel = (k * (pos[1] - this.pos[1]) - c * this.vel[1]) / m;
