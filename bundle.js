@@ -482,7 +482,6 @@ var Circle = function () {
   }, {
     key: "gravitate",
     value: function gravitate(pos) {
-
       var m = 500;
       var k = 1;
       var c = 10;
