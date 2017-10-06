@@ -457,12 +457,21 @@ var Circle = function () {
     value: function updatePos(pos) {
       this.pos = pos;
     }
-
-    // findDistance(pos1, pos2) {
-    //    let dist =  Math.sqrt( Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2) );
-    //    return dist;
-    // }
-
+  }, {
+    key: "findDistance",
+    value: function findDistance(pos1, pos2) {
+      var dist = Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
+      return dist;
+    }
+  }, {
+    key: "findRadialOffset",
+    value: function findRadialOffset(pos1, pos2) {
+      var d = this.findDistance(pos1, pos2);
+      var t = this.radius * 2 / d;
+      var x = (1 - t) * pos1[0] + t * pos2[0];
+      var y = (1 - t) * pos1[1] + t * pos2[1];
+      return [x, y];
+    }
   }, {
     key: "followPos",
     value: function followPos(pathHistory, currentPos) {
@@ -478,11 +487,10 @@ var Circle = function () {
       var k = 1;
       var c = 10;
 
-      var radialOffsetX = 2 * this.radius;
-      var radialOffsetY = 2 * this.radius;
+      var offset = this.findRadialOffset(pos, this.pos);
 
-      var xAccel = (k * (pos[0] - this.pos[0]) - c * this.vel[0]) / m;
-      var yAccel = (k * (pos[1] - this.pos[1]) - c * this.vel[1]) / m;
+      var xAccel = (k * (offset[0] - this.pos[0]) - c * this.vel[0]) / m;
+      var yAccel = (k * (offset[1] - this.pos[1]) - c * this.vel[1]) / m;
 
       this.vel[0] += xAccel;
       this.vel[1] += yAccel;
