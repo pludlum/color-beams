@@ -76,7 +76,7 @@
   font-size: 1vw;
   position: absolute;
   top: 25px;
-  left: 20px;
+  left: 3vw;
   background-color: transparent;
 
   z-index: 999;
@@ -86,7 +86,7 @@
 }
 
 .score.current {
-  left: 10vw;
+  left: 12vw;
 }
 
 
