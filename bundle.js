@@ -74,7 +74,7 @@ var _game = __webpack_require__(1);
 
 var _game2 = _interopRequireDefault(_game);
 
-var _screen = __webpack_require__(2);
+var _screen = __webpack_require__(4);
 
 var _screen2 = _interopRequireDefault(_screen);
 
@@ -145,6 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     gameScreen.start();
     title.className += " hidden";
     menu.className += " hidden";
+    headerTitle.className = "header-title";
 
     var currentScore = document.getElementsByClassName("score current")[0];
     currentScore.innerHTML = "Current Score: 0";
@@ -153,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var startButton = document.getElementsByClassName("start-button")[0];
   var title = document.getElementsByClassName("game-title")[0];
   var menu = document.getElementsByClassName("menu-container")[0];
+  var headerTitle = document.getElementsByClassName("header-title hidden")[0];
   startButton.addEventListener('click', startGame);
 });
 
@@ -169,11 +171,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _circles = __webpack_require__(3);
+var _circles = __webpack_require__(2);
 
 var _circles2 = _interopRequireDefault(_circles);
 
-var _beams = __webpack_require__(4);
+var _beams = __webpack_require__(3);
 
 var _beams2 = _interopRequireDefault(_beams);
 
@@ -279,11 +281,15 @@ var Game = function () {
       for (var i = 0; i < this.beams.length; i++) {
         for (var j = 0; j < this.circles.length; j++) {
 
-          if (this.beams[i].orientation === 'V' && this.beams[i].pos[0] > this.circles[j].pos[0] - this.circles[j].radius && this.beams[i].pos[0] < this.circles[j].pos[0] + this.circles[j].radius) {
+          if (this.beams[i].orientation === 'V' && this.beams[i].pos[0] > this.circles[j].pos[0] - this.circles[j].radius && this.beams[i].pos[0] < this.circles[j].pos[0] + this.circles[j].radius && this.beams[i].pos[0] > 1 && this.beams[i].pos[0] < this.canvas.width * 0.99) {
+            console.log(this.beams[i].pos[0]);
+            console.log(this.canvas.width);
             this.enforceCollision(this.circles[j], this.beams[i], i);
           }
 
-          if (this.beams[i].orientation === 'H' && this.beams[i].pos[1] > this.circles[j].pos[1] - this.circles[j].radius && this.beams[i].pos[1] < this.circles[j].pos[1] + this.circles[j].radius) {
+          if (this.beams[i].orientation === 'H' && this.beams[i].pos[1] > this.circles[j].pos[1] - this.circles[j].radius && this.beams[i].pos[1] < this.circles[j].pos[1] + this.circles[j].radius && this.beams[i].pos[1] > 1 && this.beams[i].pos[1] < this.canvas.height * 0.99) {
+            console.log(this.beams[i].pos[1]);
+            console.log(this.canvas.height);
             this.enforceCollision(this.circles[j], this.beams[i], i);
           }
         }
@@ -298,8 +304,10 @@ var Game = function () {
         var currentScore = document.getElementsByClassName("score current")[0];
         currentScore.innerHTML = 'Current Score: ' + this.score;
         if (beam.color === "#bf4422") {
+          document.getElementsByClassName("hit1")[0].currentTime = "0";
           document.getElementsByClassName("hit1")[0].play();
         } else {
+          document.getElementsByClassName("hit2")[0].currentTime = "0";
           document.getElementsByClassName("hit2")[0].play();
         }
       } else {
@@ -327,7 +335,7 @@ var Game = function () {
 
       this.ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-      this.leadCircle.updatePos(options.mousePos);
+      this.leadCircle.tieToMouse(options.mousePos);
       // this.followCircle.followPos(options.pathHistory, options.mousePos);
       this.followCircle.gravitate(options.mousePos);
 
@@ -349,6 +357,155 @@ exports.default = Game;
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Circle = function () {
+  function Circle(options) {
+    _classCallCheck(this, Circle);
+
+    this.radius = 30;
+    this.pos = options.position;
+    this.color = options.color;
+    this.vel = [0, 0];
+  }
+
+  _createClass(Circle, [{
+    key: "updatePos",
+    value: function updatePos(pos) {
+      this.pos = pos;
+    }
+  }, {
+    key: "findDistance",
+    value: function findDistance(pos1, pos2) {
+      var dist = Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
+      return dist;
+    }
+  }, {
+    key: "findRadialOffset",
+    value: function findRadialOffset(pos1, pos2) {
+      var d = this.findDistance(pos1, pos2);
+      var t = this.radius * 3 / d;
+      var x = (1 - t) * pos1[0] + t * pos2[0];
+      var y = (1 - t) * pos1[1] + t * pos2[1];
+      return [x, y];
+    }
+  }, {
+    key: "followPos",
+    value: function followPos(pathHistory, currentPos) {
+      if (pathHistory.length > 30) {
+        this.pos = pathHistory[0];
+      }
+    }
+  }, {
+    key: "tieToMouse",
+    value: function tieToMouse(pos) {
+      var m = 25;
+      var k = 10;
+      var c = 10;
+
+      var xAccel = (k * (pos[0] - this.pos[0]) - c * this.vel[0]) / m;
+      var yAccel = (k * (pos[1] - this.pos[1]) - c * this.vel[1]) / m;
+
+      this.vel[0] += xAccel;
+      this.vel[1] += yAccel;
+
+      this.pos[0] += this.vel[0];
+      this.pos[1] += this.vel[1];
+    }
+  }, {
+    key: "gravitate",
+    value: function gravitate(pos) {
+      var m = 500;
+      var k = 1;
+      var c = 10;
+
+      var offset = this.findRadialOffset(pos, this.pos);
+
+      var xAccel = (k * (offset[0] - this.pos[0]) - c * this.vel[0]) / m;
+      var yAccel = (k * (offset[1] - this.pos[1]) - c * this.vel[1]) / m;
+
+      this.vel[0] += xAccel;
+      this.vel[1] += yAccel;
+
+      this.pos[0] += this.vel[0];
+      this.pos[1] += this.vel[1];
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx) {
+      ctx.fillStyle = this.color;
+
+      ctx.beginPath();
+      ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
+      ctx.fill();
+    }
+  }]);
+
+  return Circle;
+}();
+
+exports.default = Circle;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Beam = function () {
+  function Beam(options) {
+    _classCallCheck(this, Beam);
+
+    this.color = options.color;
+    this.vel = options.vel;
+    this.pos = options.pos;
+    this.height = options.height;
+    this.width = options.width;
+    this.remove = false;
+    this.orientation = options.orientation;
+  }
+
+  _createClass(Beam, [{
+    key: "move",
+    value: function move() {
+      this.pos[0] += this.vel[0];
+      this.pos[1] += this.vel[1];
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx) {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.pos[0], this.pos[1], this.width, this.height);
+    }
+  }]);
+
+  return Beam;
+}();
+
+exports.default = Beam;
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -426,139 +583,6 @@ var Screen = function () {
 }();
 
 exports.default = Screen;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Circle = function () {
-  function Circle(options) {
-    _classCallCheck(this, Circle);
-
-    this.radius = 30;
-    this.pos = options.position;
-    this.color = options.color;
-    this.vel = [0, 0];
-  }
-
-  _createClass(Circle, [{
-    key: "updatePos",
-    value: function updatePos(pos) {
-      this.pos = pos;
-    }
-  }, {
-    key: "findDistance",
-    value: function findDistance(pos1, pos2) {
-      var dist = Math.sqrt(Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2));
-      return dist;
-    }
-  }, {
-    key: "findRadialOffset",
-    value: function findRadialOffset(pos1, pos2) {
-      var d = this.findDistance(pos1, pos2);
-      var t = this.radius * 2 / d;
-      var x = (1 - t) * pos1[0] + t * pos2[0];
-      var y = (1 - t) * pos1[1] + t * pos2[1];
-      return [x, y];
-    }
-  }, {
-    key: "followPos",
-    value: function followPos(pathHistory, currentPos) {
-      if (pathHistory.length > 30) {
-        this.pos = pathHistory[0];
-      }
-    }
-  }, {
-    key: "gravitate",
-    value: function gravitate(pos) {
-      var m = 500;
-      var k = 1;
-      var c = 10;
-
-      var offset = this.findRadialOffset(pos, this.pos);
-
-      var xAccel = (k * (offset[0] - this.pos[0]) - c * this.vel[0]) / m;
-      var yAccel = (k * (offset[1] - this.pos[1]) - c * this.vel[1]) / m;
-
-      this.vel[0] += xAccel;
-      this.vel[1] += yAccel;
-
-      this.pos[0] += this.vel[0];
-      this.pos[1] += this.vel[1];
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx) {
-      ctx.fillStyle = this.color;
-
-      ctx.beginPath();
-      ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
-      ctx.fill();
-    }
-  }]);
-
-  return Circle;
-}();
-
-exports.default = Circle;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Beam = function () {
-  function Beam(options) {
-    _classCallCheck(this, Beam);
-
-    this.color = options.color;
-    this.vel = options.vel;
-    this.pos = options.pos;
-    this.height = options.height;
-    this.width = options.width;
-    this.remove = false;
-    this.orientation = options.orientation;
-  }
-
-  _createClass(Beam, [{
-    key: "move",
-    value: function move() {
-      this.pos[0] += this.vel[0];
-      this.pos[1] += this.vel[1];
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx) {
-      ctx.fillStyle = this.color;
-      ctx.fillRect(this.pos[0], this.pos[1], this.width, this.height);
-    }
-  }]);
-
-  return Beam;
-}();
-
-exports.default = Beam;
 
 /***/ })
 /******/ ]);
