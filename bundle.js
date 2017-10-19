@@ -304,11 +304,17 @@ var Game = function () {
         var currentScore = document.getElementsByClassName("score current")[0];
         currentScore.innerHTML = 'Current Score: ' + this.score;
         if (beam.color === "#bf4422") {
-          document.getElementsByClassName("hit1")[0].currentTime = "0";
-          document.getElementsByClassName("hit1")[0].play();
+          var soundOne = document.getElementsByClassName("hit1")[0];
+          soundOne.volume = "0";
+          soundOne.currentTime = "0";
+          soundOne.volume = "1";
+          soundOne.play();
         } else {
-          document.getElementsByClassName("hit2")[0].currentTime = "0";
-          document.getElementsByClassName("hit2")[0].play();
+          var soundTwo = document.getElementsByClassName("hit2")[0];
+          soundTwo.volume = "0";
+          soundTwo.currentTime = "0";
+          soundTwo.volume = "1";
+          soundTwo.play();
         }
       } else {
         this.over = true;
