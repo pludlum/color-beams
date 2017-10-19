@@ -189,8 +189,10 @@ var Game = function () {
 
     this.ctx = ctx;
     this.canvas = canvas;
-    this.leadCircle = new _circles2.default({ "color": '#bf4422', "position": [400, 600] });
-    this.followCircle = new _circles2.default({ "color": '#229dbf', "position": [400, 620] });
+    this.leadCircle = new _circles2.default({ "color": '#bf4422',
+      "position": [400, 600] });
+    this.followCircle = new _circles2.default({ "color": '#229dbf',
+      "position": [400, 620] });
 
     this.beams = [];
     this.circles = [this.leadCircle, this.followCircle];
@@ -232,9 +234,10 @@ var Game = function () {
   }, {
     key: 'makeTopHorizontalBeam',
     value: function makeTopHorizontalBeam() {
-      this.beams.push(new _beams2.default({ "pos": [-10, 0], "vel": [0, 0.5 + this.score / 10],
-        'height': 8,
-        'width': this.canvas.width,
+      this.beams.push(new _beams2.default({ "pos": [-10, 0],
+        "vel": [0, 0.5 + this.score / 10],
+        "height": 8,
+        "width": this.canvas.width,
         "color": this.getRandomColor(),
         "orientation": 'H' }));
     }
@@ -282,14 +285,10 @@ var Game = function () {
         for (var j = 0; j < this.circles.length; j++) {
 
           if (this.beams[i].orientation === 'V' && this.beams[i].pos[0] > this.circles[j].pos[0] - this.circles[j].radius && this.beams[i].pos[0] < this.circles[j].pos[0] + this.circles[j].radius && this.beams[i].pos[0] > 1 && this.beams[i].pos[0] < this.canvas.width * 0.99) {
-            console.log(this.beams[i].pos[0]);
-            console.log(this.canvas.width);
             this.enforceCollision(this.circles[j], this.beams[i], i);
           }
 
           if (this.beams[i].orientation === 'H' && this.beams[i].pos[1] > this.circles[j].pos[1] - this.circles[j].radius && this.beams[i].pos[1] < this.circles[j].pos[1] + this.circles[j].radius && this.beams[i].pos[1] > 1 && this.beams[i].pos[1] < this.canvas.height * 0.99) {
-            console.log(this.beams[i].pos[1]);
-            console.log(this.canvas.height);
             this.enforceCollision(this.circles[j], this.beams[i], i);
           }
         }
