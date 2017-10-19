@@ -2,7 +2,7 @@
 ![](./docs/colorbeams.png)
 # Color Beams
 
-Color Beams is a minimalist physics-based game. It's pretty fun!
+Color Beams is a minimalist physics-based game built using vanilla JavaScript, HTML5, and CSS. It's pretty fun!
 
 ![](./docs/colorbeamsexample1.gif)
 
