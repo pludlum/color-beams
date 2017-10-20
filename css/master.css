@@ -122,3 +122,15 @@
 .header-title.hidden {
   visibility: hidden;
 }
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 5vh;
+  width: 6vw;
+}
+
+.link {
+  color: black;
+  text-decoration: none;
+}
